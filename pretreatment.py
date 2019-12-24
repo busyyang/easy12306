@@ -11,7 +11,10 @@ import cv2
 import numpy as np
 import requests
 import scipy.fftpack
-
+import json
+import base64
+import threading
+import time
 
 PATH = 'imgs'
 
@@ -20,18 +23,28 @@ def download_image():
     # 抓取验证码
     # 存放到指定path下
     # 文件名为图像的MD5
-    url = 'https://kyfw.12306.cn/otn/passcodeNew/getPassCodeNew?module=login&rand=sjrand'
-    r = requests.get(url)
-    fn = hashlib.md5(r.content).hexdigest()
-    with open(f'{PATH}/{fn}.jpg', 'wb') as fp:
-        fp.write(r.content)
+    try:
+        url = 'https://kyfw.12306.cn/passport/captcha/captcha-image64'
+        r = requests.get(url)
+        fn = hashlib.md5(r.content).hexdigest()
+        img_str = json.loads(r.content)['image']
+        with open(f'{PATH}/{fn}.jpg', 'wb') as fp:
+            fp.write(base64.b64decode(img_str))
+    except:
+        print('获取图片失败......')
 
 
 def download_images():
     pathlib.Path(PATH).mkdir(exist_ok=True)
-    for idx in range(40000):
-        download_image()
-        print(idx)
+    idx = 0
+    while idx < 40000:
+        if len(threading.enumerate()) < 10:
+            t = threading.Thread(target=download_image)
+            t.start()
+            print(idx)
+            idx = idx + 1
+        else:
+            time.sleep(1)
 
 
 def get_text(img, offset=0):
@@ -73,7 +86,7 @@ def get_imgs(img):
 
 
 def pretreat():
-    if not os.path.isdir(PATH):
+    if len(os.listdir(PATH)) < 40000:
         download_images()
     texts, imgs = [], []
     for img in os.listdir(PATH):
@@ -84,12 +97,20 @@ def pretreat():
     return texts, imgs
 
 
-def load_data(path='data.npz'):
+def load_data(path='./data/data.npz'):
     if not os.path.isfile(path):
         texts, imgs = pretreat()
         np.savez(path, texts=texts, images=imgs)
     f = np.load(path)
     return f['texts'], f['images']
+
+
+class thread_getImage(threading.Thread):
+    def __init__(self, key, rg):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        download_image()
 
 
 if __name__ == '__main__':
