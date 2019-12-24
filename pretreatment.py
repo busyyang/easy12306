@@ -13,8 +13,6 @@ import requests
 import scipy.fftpack
 import json
 import base64
-import threading
-import time
 
 PATH = 'imgs'
 
@@ -23,28 +21,19 @@ def download_image():
     # 抓取验证码
     # 存放到指定path下
     # 文件名为图像的MD5
-    try:
-        url = 'https://kyfw.12306.cn/passport/captcha/captcha-image64'
-        r = requests.get(url)
-        fn = hashlib.md5(r.content).hexdigest()
-        img_str = json.loads(r.content)['image']
-        with open(f'{PATH}/{fn}.jpg', 'wb') as fp:
-            fp.write(base64.b64decode(img_str))
-    except:
-        print('获取图片失败......')
+    url = 'https://kyfw.12306.cn/passport/captcha/captcha-image64'
+    r = requests.get(url)
+    fn = hashlib.md5(r.content).hexdigest()
+    img_str = json.loads(r.content)['image']
+    with open(f'{PATH}/{fn}.jpg', 'wb') as fp:
+        fp.write(base64.b64decode(img_str))
 
 
 def download_images():
     pathlib.Path(PATH).mkdir(exist_ok=True)
-    idx = 0
-    while idx < 40000:
-        if len(threading.enumerate()) < 10:
-            t = threading.Thread(target=download_image)
-            t.start()
-            print(idx)
-            idx = idx + 1
-        else:
-            time.sleep(1)
+    for idx in range(40000):
+        download_image()
+        print(idx)
 
 
 def get_text(img, offset=0):
@@ -103,14 +92,6 @@ def load_data(path='./data/data.npz'):
         np.savez(path, texts=texts, images=imgs)
     f = np.load(path)
     return f['texts'], f['images']
-
-
-class thread_getImage(threading.Thread):
-    def __init__(self, key, rg):
-        threading.Thread.__init__(self)
-
-    def run(self):
-        download_image()
 
 
 if __name__ == '__main__':
