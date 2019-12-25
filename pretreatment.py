@@ -15,7 +15,6 @@ import json
 import base64
 import threading
 import time
-import myproxy
 
 PATH = 'imgs'
 
@@ -38,9 +37,8 @@ def download_image():
 def download_images():
     pathlib.Path(PATH).mkdir(exist_ok=True)
     idx = 0
-    while True:
-
-        if len(threading.enumerate()) < 10:
+    while idx < 40000:
+        if len(threading.enumerate()) < 6:
             t = threading.Thread(target=download_image)
             t.start()
             print(idx)
@@ -108,7 +106,7 @@ def load_data(path='./data/data.npz'):
 
 
 class thread_getImage(threading.Thread):
-    def __init__(self, key, rg):
+    def __init__(self):
         threading.Thread.__init__(self)
 
     def run(self):
