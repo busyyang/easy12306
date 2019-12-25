@@ -86,7 +86,7 @@ def get_imgs(img):
 
 
 def pretreat():
-    if len(os.listdir(PATH)) < 40000:
+    if False:
         download_images()
     texts, imgs = [], []
     for img in os.listdir(PATH):
