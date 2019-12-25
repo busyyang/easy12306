@@ -46,7 +46,7 @@ def format_texts_set():
             label = l.split(' ')[1]
             if label in category:
                 imgs.append(texts_f[index, :, :])
-                labels.append(label)
+                labels.append(category.index(label))
         except:
             pass
     np.savez('./data/texts.npz', texts=imgs, labels=labels)

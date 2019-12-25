@@ -11,7 +11,7 @@ from keras.callbacks import ReduceLROnPlateau
 from keras.utils import to_categorical
 
 
-def load_data(fn='texts.npz', to=False):
+def load_data(fn='./data/texts.npz', to=False):
     data = np.load(fn)
     texts, labels = data['texts'], data['labels']
     texts = texts / 255.0
@@ -19,7 +19,7 @@ def load_data(fn='texts.npz', to=False):
     texts.shape = (-1, h, w, 1)
     if to:
         labels = to_categorical(labels)
-    n = int(texts.shape[0] * 0.9)   # 90%用于训练，10%用于测试
+    n = int(texts.shape[0] * 0.9)  # 90%用于训练，10%用于测试
     return (texts[:n], labels[:n]), (texts[n:], labels[n:])
 
 
@@ -59,7 +59,7 @@ def main():
     reduce_lr = ReduceLROnPlateau(verbose=1)
     history = model.fit(train_x, train_y, epochs=100,
                         validation_data=(test_x, test_y),
-                        callbacks=[reduce_lr])
+                        callbacks=[reduce_lr], verbose=2)
     savefig(history, start=10)
     model.save('model.v1.0.h5', include_optimizer=False)
 
@@ -82,7 +82,7 @@ def acc(y_true, y_pred):
                   K.floatx())
 
 
-def main_v19():     # 1.9
+def main_v19():  # 1.9
     (train_x, train_y), (test_x, test_y) = load_data_v2()
     model = models.load_model('model.v1.0.h5')
     model.compile(optimizer='RMSprop',
