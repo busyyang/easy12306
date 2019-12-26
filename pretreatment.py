@@ -49,7 +49,7 @@ def download_images():
 
 def get_text(img, offset=0):
     # 得到图像中的文本部分
-    return img[3:22, 120 + offset:177 + offset]
+    return img[:25, 120 + offset:177 + offset]
 
 
 def avhash(im):
