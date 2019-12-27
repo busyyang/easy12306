@@ -60,8 +60,8 @@ def main():
     history = model.fit(train_x, train_y, epochs=100,
                         validation_data=(test_x, test_y),
                         callbacks=[reduce_lr], verbose=2)
+    model.save('./models/model.v1.0.h5', include_optimizer=False)
     savefig(history, start=10)
-    model.save('model.v1.0.h5', include_optimizer=False)
 
 
 def load_data_v2():
@@ -84,7 +84,7 @@ def acc(y_true, y_pred):
 
 def main_v19():  # 1.9
     (train_x, train_y), (test_x, test_y) = load_data_v2()
-    model = models.load_model('model.v1.0.h5')
+    model = models.load_model('./models/model.v1.0.h5')
     model.compile(optimizer='RMSprop',
                   loss='categorical_hinge',
                   metrics=[acc])
@@ -133,7 +133,7 @@ def main_v20():
 
 
 def predict(texts):
-    model = models.load_model('model.h5')
+    model = models.load_model('./models/model.v1.0.h5')
     texts = texts / 255.0
     _, h, w = texts.shape
     texts.shape = (-1, h, w, 1)
@@ -142,14 +142,15 @@ def predict(texts):
 
 
 def _predict():
-    texts = np.load('data.npy')
+    f = np.load('./data/data.npz')
+    texts = f['texts']
     labels = predict(texts)
-    np.save('labels.npy', labels)
+    np.save('./data/texts_labels.npy', labels)
 
 
 def show():
-    texts = np.load('data.npy')
-    labels = np.load('labels.npy')
+    texts = np.load('./data/data.npz')['texts']
+    labels = np.load('./data/texts_labels.npy')
     labels = labels.argmax(axis=1)
     pathlib.Path('classify').mkdir(exist_ok=True)
     for idx, (text, label) in enumerate(zip(texts, labels)):
@@ -159,7 +160,7 @@ def show():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
     # main_v2()
     _predict()
     show()
