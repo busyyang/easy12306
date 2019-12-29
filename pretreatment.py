@@ -84,25 +84,33 @@ def get_imgs(img):
         imgs.append(phash(img))
     return imgs
 
+def get_imgs_original(img):
+    imgs = []
+    for img in _get_imgs(img):
+        imgs.append(img)
+    return imgs
+
 
 def pretreat():
     if False:
         download_images()
-    texts, imgs = [], []
+    texts, imgs, imgs_color = [], [], []
     for img in os.listdir(PATH):
         img = os.path.join(PATH, img)
-        img = cv2.imread(img, cv2.IMREAD_GRAYSCALE)
-        texts.append(get_text(img))
-        imgs.append(get_imgs(img))
-    return texts, imgs
+        img = cv2.imread(img)
+        img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        texts.append(get_text(img_gray))
+        imgs.append(get_imgs(img_gray))
+        imgs_color.append(get_imgs_original(img))
+    return texts, imgs, imgs_color
 
 
 def load_data(path='./data/data.npz'):
     if not os.path.isfile(path):
-        texts, imgs = pretreat()
-        np.savez(path, texts=texts, images=imgs)
+        texts, imgs, imgs_color = pretreat()
+        np.savez(path, texts=texts, images=imgs, images_original=imgs_color)
     f = np.load(path)
-    return f['texts'], f['images']
+    return f['texts'], f['images'], f['images_original']
 
 
 class thread_getImage(threading.Thread):
@@ -114,8 +122,9 @@ class thread_getImage(threading.Thread):
 
 
 if __name__ == '__main__':
-    texts, imgs = load_data()
+    texts, imgs, imgs_nohash = load_data()
     print(texts.shape)
     print(imgs.shape)
+    print(imgs_nohash.shape)
     imgs = imgs.reshape(-1, 8)
     print(np.unique(imgs, axis=0).shape)

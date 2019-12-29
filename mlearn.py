@@ -149,8 +149,8 @@ def _predict():
 
 
 def show():
-    texts = np.load('./data/data.npz')['texts']
-    labels = np.load('./data/texts_labels.npy')
+    texts = np.load('data.npy')
+    labels = np.load('labels.npy')
     labels = labels.argmax(axis=1)
     pathlib.Path('classify').mkdir(exist_ok=True)
     for idx, (text, label) in enumerate(zip(texts, labels)):

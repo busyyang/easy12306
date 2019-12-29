@@ -21,7 +21,7 @@ def preprocess_input(x):
 
 def load_data():
     # 这是统计学专家提供的训练集
-    data = np.load('captcha.npz')
+    data = np.load('./data/captcha.npz')
     train_x, train_y = data['images'], data['labels']
     train_x = preprocess_input(train_x)
     # 由于是统计得来的信息，所以在此给定可信度
@@ -30,7 +30,7 @@ def load_data():
     train_y = train_y.argmax(axis=1)
 
     # 这是人工提供的验证集
-    data = np.load('captcha.test.npz')
+    data = np.load('./data/captcha.test.npz')
     test_x, test_y = data['images'], data['labels']
     test_x = preprocess_input(test_x)
     return (train_x, train_y, sample_weight), (test_x, test_y)
@@ -63,15 +63,15 @@ def learn():
     model.fit_generator(train_generator, epochs=400,
                         steps_per_epoch=100,
                         validation_data=(test_x[:800], test_y[:800]),
-                        callbacks=[reduce_lr])
+                        callbacks=[reduce_lr], verbose=2)
     result = model.evaluate(test_x, test_y)
     print(result)
-    model.save('12306.image.model.h5', include_optimizer=False)
+    model.save('./models/12306.image.model.h5', include_optimizer=False)
 
 
 def predict(imgs):
     imgs = preprocess_input(imgs)
-    model = models.load_model('12306.image.model.h5')
+    model = models.load_model('./models/12306.image.model.h5')
     labels = model.predict(imgs)
     return labels
 
