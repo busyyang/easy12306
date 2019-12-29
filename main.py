@@ -49,7 +49,7 @@ def main(fn):
         print(text)
 
     # 加载图片分类器
-    model = models.load_model('12306.image.model.h5')
+    model = models.load_model('./models/12306.image.model.h5')
     labels = model.predict(imgs)
     labels = labels.argmax(axis=1)
     for pos, label in enumerate(labels):
